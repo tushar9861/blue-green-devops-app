@@ -2,14 +2,16 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = "ap-south-1"
-        ECR_REPO = "634526447081.dkr.ecr.us-east-1.amazonaws.com/devops-app"
+        AWS_REGION = "us-east-1"
+        ACCOUNT_ID = "634526447081"
+        REPO_NAME = "devops-app"
         IMAGE_TAG = "${BUILD_NUMBER}"
+        ECR_URI = "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${REPO_NAME}"
     }
 
     stages {
 
-        stage('Checkout Coode') {
+        stage('Checkout Code') {
             steps {
                 git 'https://github.com/tushar9861/blue-green-devops-app.git'
             }
@@ -17,29 +19,28 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    sh "docker build -t devops-app:${IMAGE_TAG} ."
-                }
+                sh "docker build -t ${REPO_NAME}:${IMAGE_TAG} ."
             }
         }
 
         stage('Tag Image') {
             steps {
-                script {
-                    sh "docker tag devops-app:${IMAGE_TAG} ${ECR_REPO}:${IMAGE_TAG}"
-                }
+                sh "docker tag ${REPO_NAME}:${IMAGE_TAG} ${ECR_URI}:${IMAGE_TAG}"
+            }
+        }
+
+        stage('Login to ECR') {
+            steps {
+                sh """
+                aws ecr get-login-password --region ${AWS_REGION} | \
+                docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                """
             }
         }
 
         stage('Push to ECR') {
             steps {
-                script {
-                    sh """
-                    aws ecr get-login-password --region ${AWS_REGION} | \
-                    docker login --username AWS --password-stdin ${ECR_REPO}
-                    docker push ${ECR_REPO}:${IMAGE_TAG}
-                    """
-                }
+                sh "docker push ${ECR_URI}:${IMAGE_TAG}"
             }
         }
     }
