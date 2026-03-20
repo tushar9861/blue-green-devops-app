@@ -11,12 +11,6 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
-            steps {
-                git 'https://github.com/tushar9861/blue-green-devops-app.git'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 sh "docker build -t ${REPO_NAME}:${IMAGE_TAG} ."
