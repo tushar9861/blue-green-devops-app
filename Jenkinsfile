@@ -9,7 +9,7 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout Coode') {
             steps {
                 git 'https://github.com/tushar9861/blue-green-devops-app.git'
             }
