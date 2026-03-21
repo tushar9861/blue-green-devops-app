@@ -5,6 +5,7 @@ const server = http.createServer((req, res) => {
     res.end("Hello Engineers from Blue-Green Deployment v1");
 });
 
-server.listen(3000, () => {
+// ✅ FIX HERE
+server.listen(3000, "0.0.0.0", () => {
     console.log("Server running on port 3000");
 });
